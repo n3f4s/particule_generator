@@ -1,0 +1,12 @@
+[package]
+name = "particle_generator"
+version = "0.1.0"
+authors = ["n3f4s <tiv.crb@gmail.com>"]
+
+[dependencies]
+#sdl2 = "*"
+rand = "0.3"
+
+[dependencies.sdl2]
+git = "https://github.com/AngryLawyer/rust-sdl2"
+features = ["image", "gfx"]
