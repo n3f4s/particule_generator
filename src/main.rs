@@ -254,17 +254,15 @@ fn main() {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
     let _image_context = sdl2::image::init(INIT_PNG | INIT_JPG).unwrap();
-    let window = video_subsystem.window("rust-sdl2 demo: Video", 1900, 1060)
+    let window = video_subsystem.window("Particle generator", 1900, 1060)
         .position_centered()
         .build()
         .unwrap();
 
+    //let mut canvas = window.into_canvas().present_vsync().software().build().unwrap();
     let mut canvas = window.into_canvas().software().build().unwrap();
     let red = (255, 0, 0, 255);
     let rad = 5;
-
-    //let mut fps = FPSManager::new();
-    //fps.set_framerate(10);
 
     'mainloop: loop {
         for event in sdl_context.event_pump().unwrap().poll_iter() {
@@ -273,21 +271,49 @@ fn main() {
                 Event::KeyDown {keycode: Option::Some(Keycode::Escape), ..} =>
                     break 'mainloop,
                 Event::KeyDown {keycode: Option::Some(Keycode::Space), ..} => {
-                    world.create_particle();
+                    for _ in 0..1000 {
+                        world.create_particle();
+                    }
                     println!("create particle !");
                 }
                 _ => {}
             }
         }
         world.update();
-        canvas.clear();
         canvas.set_draw_color(Color::RGB(0, 0, 0));
+        canvas.clear();
+        // Point where the particle are created
+        canvas.filled_circle((bound.center().x) as i16, bound.center().y as i16, 1, (255, 255, 255, 255));
+        // Gravity well 1
+        canvas.filled_circle((bound.center().x + 100.0) as i16, bound.center().y as i16, 30, (0, 0, 255, 100));
+        canvas.filled_circle((bound.center().x + 100.0) as i16, bound.center().y as i16, 20, (0, 0, 255, 150));
+        canvas.filled_circle((bound.center().x + 100.0) as i16, bound.center().y as i16, 10, (0, 0, 255, 200));
+        canvas.filled_circle((bound.center().x + 100.0) as i16, bound.center().y as i16, rad, (0, 255, 255, 255));
+
+        // Gravity well 2
+        canvas.filled_circle((bound.center().x + 130.0) as i16, bound.center().y as i16, 30, (0, 0, 255, 100));
+        canvas.filled_circle((bound.center().x + 130.0) as i16, bound.center().y as i16, 20, (0, 0, 255, 150));
+        canvas.filled_circle((bound.center().x + 130.0) as i16, bound.center().y as i16, 10, (0, 0, 255, 200));
+        canvas.filled_circle((bound.center().x + 130.0) as i16, bound.center().y as i16, rad, (0, 255, 255, 255));
+
+        // Gravity well 3
+        canvas.filled_circle((bound.center().x + 160.0) as i16, bound.center().y as i16, 30, (0, 0, 255, 100));
+        canvas.filled_circle((bound.center().x + 160.0) as i16, bound.center().y as i16, 20, (0, 0, 255, 150));
+        canvas.filled_circle((bound.center().x + 160.0) as i16, bound.center().y as i16, 10, (0, 0, 255, 200));
+        canvas.filled_circle((bound.center().x + 160.0) as i16, bound.center().y as i16, rad, (0, 255, 255, 255));
+
+        // Gravity well 4
+        canvas.filled_circle((bound.center().x - 200.0) as i16, (bound.center().y - 300.0) as i16, 30, (0, 0, 255, 100));
+        canvas.filled_circle((bound.center().x - 200.0) as i16, (bound.center().y - 300.0) as i16, 20, (0, 0, 255, 150));
+        canvas.filled_circle((bound.center().x - 200.0) as i16, (bound.center().y - 300.0) as i16, 10, (0, 0, 255, 200));
+        canvas.filled_circle((bound.center().x - 200.0) as i16, (bound.center().y - 300.0) as i16, rad, (0, 255, 255, 255));
         for p in &world.particles {
             if p.alive {
-                println!("Draw particle at position {} {}", p.position.x, p.position.y);
+                //println!("Draw particle at position {} {}", p.position.x, p.position.y);
                 canvas.filled_circle(p.position.x as i16, p.position.y as i16, rad, red);
             }
         }
+        println!("{} particles", world.particles.len());
         canvas.present();
     }
 }
