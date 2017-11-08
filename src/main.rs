@@ -153,6 +153,71 @@ impl PhysicProperty for Gravity {
         p.apply_force(Vec3::new(0.0, 1.0, 0.0));
     }
 }
+pub struct Wind {
+}
+
+impl PhysicProperty for Wind {
+    fn update_particle(&self, p: &mut Particle) {
+        p.apply_force(Vec3::new(-0.25, 0.0, 0.0));
+    }
+}
+pub struct AirResistance {
+}
+
+impl PhysicProperty for AirResistance {
+    fn update_particle(&self, p: &mut Particle) {
+        let density = 1.0; // air density
+        let drag = 0.20; // drag coeficient (magic number here)
+        let area = 1.0; // area affected by the air resistance, compute using radius of sphere
+        let mut next_point = p.clone();
+        next_point.update();
+        let speed = (((next_point.position.x - p.position.x) *
+                      (next_point.position.x - p.position.x)) +
+                     ((next_point.position.y - p.position.y) *
+                      (next_point.position.y - p.position.y))).sqrt();
+        let f = ((density * drag * area) / 2.0) * speed;
+        let unit_v = unit_vector(p.direction);
+        p.apply_force(-1.0 * f * unit_v);
+    }
+}
+#[derive(Debug, Default, PartialEq, Copy, Clone)]
+pub struct GravityWell {
+    pub position: Point3,
+    pub strength: f64,
+    pub area_of_effect: f64,
+}
+impl GravityWell {
+    fn new(p: Point3, s: f64, aoe: f64) -> GravityWell {
+        GravityWell {
+            position: p,
+            strength: s,
+            area_of_effect: aoe
+        }
+    }
+}
+impl PhysicProperty for GravityWell {
+    fn update_particle(&self, p: &mut Particle) {
+        let dist = ((self.position.x - p.position.x) *
+                    (self.position.x - p.position.x)) +
+                   ((self.position.y - p.position.y) *
+                   (self.position.y - p.position.y));
+        let aoe = self.area_of_effect;
+        let aoe2 = aoe * 2.0;
+        let aoe3 = aoe * 3.0;
+
+        let vec = Vec3{ x: p.position.x - self.position.x,
+                        y: p.position.y - self.position.y,
+                        z: p.position.z - self.position.z};
+
+        if dist < (aoe * aoe) {
+            p.apply_force(vec * -self.strength);
+        } else if dist < (aoe2 * aoe2) {
+            p.apply_force(vec * -(self.strength/2.0));
+        } else if dist < (aoe3 * aoe3) {
+            p.apply_force(vec * -(self.strength/3.0));
+        }
+    }
+}
 
 fn main() {
     let bound = Rectangle{up_left_corner: Point3::new(0.0,0.0,0.0), height: 1060.0, width: 1900.0, depth: 0.0};
