@@ -58,7 +58,7 @@ impl Particle {
             position: p,
             direction: d,
             alive: true,
-            lifetime: 100
+            lifetime: 500
         }
     }
     fn update(&mut self) {
