@@ -14,7 +14,10 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::pixels::Color;
-use sdl2::gfx::framerate::FPSManager;
+
+// TODO add more flexibility (more complex gravity well, particle mass, ...)
+// TODO add collision ???
+// TODO draw some properties
 
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
 pub struct Point3 {
@@ -119,6 +122,7 @@ impl World {
         }
     }
     fn update(&mut self) {
+        let mut cpt = 0;
         for mut p in &mut self.particles {
             for prop in &self.properties {
                 prop.update_particle(&mut p)
@@ -127,6 +131,12 @@ impl World {
             if ! self.boundaries.is_in_bound(&p.position) {
                 p.alive = false
             };
+            if ! p.alive {
+                cpt += 1;
+            }
+        }
+        if cpt >= (self.particles.len() / 2) {
+            self.particles.retain(|&x| x.alive);
         }
     }
 
