@@ -221,20 +221,35 @@ impl PhysicProperty for GravityWell {
 
 fn main() {
     let bound = Rectangle{up_left_corner: Point3::new(0.0,0.0,0.0), height: 1060.0, width: 1900.0, depth: 0.0};
-    let mut world = World::new(vec![Box::new(Gravity{})],
+    let mut world = World::new(vec![Box::new(Gravity{}),
+                                    Box::new(Wind{}),
+                                    Box::new(AirResistance{}),
+                                    Box::new(GravityWell::new(Point3{
+                                        x: bound.center().x - 200.0,
+                                        y: bound.center().y - 300.0,
+                                        z: bound.center().z}, 7.0, 10.0)),
+                                    Box::new(GravityWell::new(Point3{
+                                        x: bound.center().x + 100.0,
+                                        y: bound.center().y,
+                                        z: bound.center().z}, 7.0, 10.0)),
+                                    Box::new(GravityWell::new(Point3{
+                                        x: bound.center().x + 130.0,
+                                        y: bound.center().y,
+                                        z: bound.center().z}, 7.0, 10.0)),
+                                    Box::new(GravityWell::new(Point3{
+                                        x: bound.center().x + 160.0,
+                                        y: bound.center().y,
+                                        z: bound.center().z}, 7.0, 10.0))],
                                bound,
                                bound.center(),
                                Box::new(move |p: Point3| {
                                    // meh
                                    let mut rng = thread_rng();
-                                   Particle {
-                                       position: p,
-                                       direction: Vec3::new(rng.gen_range(-10.0, 10.0),
-                                                            rng.gen_range(-15.0, -5.0),
-                                                            0.0),
-                                       alive: true
+                                   Particle::new(p, Vec3::new(rng.gen_range(-50.0, 50.0),
+                                                              rng.gen_range(-100.0, 0.0),
+                                                              0.0))
                                    }
-                               } ));
+                               ));
     // SDL
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
