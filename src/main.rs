@@ -86,19 +86,28 @@ fn main() {
         .build()
         .unwrap();
 
-    //let mut canvas = window.into_canvas().present_vsync().software().build().unwrap();
-    let mut canvas = window.into_canvas().software().build().unwrap();
+    let mut canvas = window.into_canvas().present_vsync().build().unwrap();
     let red = (255, 0, 0, 255);
     let rad = 5;
 
+    let fps_counter = FPSManager::new();
+    let ttf_context = sdl2::ttf::init().unwrap();
+    let mut font = ttf_context.load_font("/usr/share/wesnoth/fonts/DejaVuSans.ttf", 12).unwrap();
+    font.set_style(sdl2::ttf::STYLE_BOLD);
+    let texture_creator = canvas.texture_creator();
+
     'mainloop: loop {
+        // let mut surface_canvas = SurfaceCanvas::from_surface(
+        //     Surface::new(1900, 1060, PixelFormatEnum::RGBA4444).unwrap()
+        // ).unwrap();
+
         for event in sdl_context.event_pump().unwrap().poll_iter() {
             match event {
                 Event::Quit{..} |
                 Event::KeyDown {keycode: Option::Some(Keycode::Escape), ..} =>
                     break 'mainloop,
                 Event::KeyDown {keycode: Option::Some(Keycode::Space), ..} => {
-                    for _ in 0..1000 {
+                    for _ in 0..1 {
                         world.create_particle();
                     }
                     println!("create particle !");
@@ -110,37 +119,65 @@ fn main() {
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
         // Point where the particle are created
-        canvas.filled_circle((bound.center().x) as i16, bound.center().y as i16, 1, (255, 255, 255, 255));
+        canvas.filled_circle((bound.center().x) as i16,
+                                     bound.center().y as i16,
+                                     1,
+                                     (255, 255, 255, 255)
+        ).unwrap();
+
         // Gravity well 1
-        canvas.filled_circle((bound.center().x + 100.0) as i16, bound.center().y as i16, 30, (0, 0, 255, 100));
-        canvas.filled_circle((bound.center().x + 100.0) as i16, bound.center().y as i16, 20, (0, 0, 255, 150));
-        canvas.filled_circle((bound.center().x + 100.0) as i16, bound.center().y as i16, 10, (0, 0, 255, 200));
-        canvas.filled_circle((bound.center().x + 100.0) as i16, bound.center().y as i16, rad, (0, 255, 255, 255));
+        draw_gravity_well(&mut canvas,
+                          (bound.center().x + 100.0) as i16,
+                          (bound.center().y) as i16,
+                          10);
 
         // Gravity well 2
-        canvas.filled_circle((bound.center().x + 130.0) as i16, bound.center().y as i16, 30, (0, 0, 255, 100));
-        canvas.filled_circle((bound.center().x + 130.0) as i16, bound.center().y as i16, 20, (0, 0, 255, 150));
-        canvas.filled_circle((bound.center().x + 130.0) as i16, bound.center().y as i16, 10, (0, 0, 255, 200));
-        canvas.filled_circle((bound.center().x + 130.0) as i16, bound.center().y as i16, rad, (0, 255, 255, 255));
+        draw_gravity_well(&mut canvas,
+                          (bound.center().x + 130.0) as i16,
+                          (bound.center().y) as i16,
+                          10);
 
         // Gravity well 3
-        canvas.filled_circle((bound.center().x + 160.0) as i16, bound.center().y as i16, 30, (0, 0, 255, 100));
-        canvas.filled_circle((bound.center().x + 160.0) as i16, bound.center().y as i16, 20, (0, 0, 255, 150));
-        canvas.filled_circle((bound.center().x + 160.0) as i16, bound.center().y as i16, 10, (0, 0, 255, 200));
-        canvas.filled_circle((bound.center().x + 160.0) as i16, bound.center().y as i16, rad, (0, 255, 255, 255));
+        draw_gravity_well(&mut canvas,
+                          (bound.center().x + 160.0) as i16,
+                          (bound.center().y) as i16,
+                          10);
 
         // Gravity well 4
-        canvas.filled_circle((bound.center().x - 200.0) as i16, (bound.center().y - 300.0) as i16, 30, (0, 0, 255, 100));
-        canvas.filled_circle((bound.center().x - 200.0) as i16, (bound.center().y - 300.0) as i16, 20, (0, 0, 255, 150));
-        canvas.filled_circle((bound.center().x - 200.0) as i16, (bound.center().y - 300.0) as i16, 10, (0, 0, 255, 200));
-        canvas.filled_circle((bound.center().x - 200.0) as i16, (bound.center().y - 300.0) as i16, rad, (0, 255, 255, 255));
+        draw_gravity_well(&mut canvas,
+                          (bound.center().x - 200.0) as i16,
+                          (bound.center().y - 300.0) as i16,
+                          10);
         for p in &world.particles {
             if p.alive {
-                //println!("Draw particle at position {} {}", p.position.x, p.position.y);
-                canvas.filled_circle(p.position.x as i16, p.position.y as i16, rad, red);
+                //surface_canvas.filled_circle(p.position.x as i16, p.position.y as i16, rad, red).unwrap();
+                canvas.filled_circle(p.position.x as i16, p.position.y as i16, rad, red).unwrap();
             }
         }
-        println!("{} particles", world.particles.len());
+        println!("{} particles, {} fps",
+                 world.particles.len(),
+                 fps_counter.get_framerate());
+        let surface = font.render(&fps_counter.get_framerate().to_string())
+            .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
+        let surface2 = font.render(&world.particles.iter().filter(|p| p.alive).count().to_string())
+            .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
+        let surface3 = font.render(&world.particles.len().to_string())
+            .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
+        let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
+        let texture2 = texture_creator.create_texture_from_surface(&surface2).unwrap();
+        let texture3 = texture_creator.create_texture_from_surface(&surface3).unwrap();
+        // let texture_creator = surface_canvas.texture_creator();
+        // canvas.copy(&texture_creator.create_texture_from_surface(
+        //     surface_canvas.into_surface()
+        // ).unwrap(),
+                    // None,
+                    // None).unwrap();
+        canvas.copy(&texture, None, Some(Rect::new(0, 0, 50, 50))).unwrap();
+        canvas.copy(&texture2, None, Some(Rect::new(0, 55, 50, 50))).unwrap();
+        canvas.copy(&texture3, None, Some(Rect::new(0, 110, 50, 50))).unwrap();
         canvas.present();
+        for _ in 0..100 {
+            world.create_particle();
+        }
     }
 }
