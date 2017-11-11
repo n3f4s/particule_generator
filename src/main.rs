@@ -8,6 +8,7 @@ mod particle;
 mod physic_property;
 mod world;
 mod rectangle;
+mod drawable;
 
 use vec3::Vec3;
 use point3::Point3;
@@ -136,30 +137,12 @@ fn main() {
                                      1,
                                      (255, 255, 255, 255)
         ).unwrap();
-
-        // Gravity well 1
-        draw_gravity_well(&mut surface_canvas,
-                          (bound.center().x + 100.0) as i16,
-                          (bound.center().y) as i16,
-                          10);
-
-        // Gravity well 2
-        draw_gravity_well(&mut surface_canvas,
-                          (bound.center().x + 130.0) as i16,
-                          (bound.center().y) as i16,
-                          10);
-
-        // Gravity well 3
-        draw_gravity_well(&mut surface_canvas,
-                          (bound.center().x + 160.0) as i16,
-                          (bound.center().y) as i16,
-                          10);
-
-        // Gravity well 4
-        draw_gravity_well(&mut surface_canvas,
-                          (bound.center().x - 200.0) as i16,
-                          (bound.center().y - 300.0) as i16,
-                          10);
+        for p in &world.properties {
+            match p.as_drawable() {
+                None => {},
+                Some(d) => d.draw_surface(&mut surface_canvas)
+            }
+        }
         for p in &world.particles {
             if p.alive {
                 surface_canvas.filled_circle(p.position.x as i16, p.position.y as i16, rad, red).unwrap();
