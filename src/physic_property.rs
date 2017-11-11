@@ -151,8 +151,3 @@ impl PhysicProperty for GravityWell {
         Some(self)
     }
 }
-
-// unsafe impl Send for Gravity {}
-// unsafe impl Send for GravityWell {}
-// unsafe impl Send for Wind {}
-// unsafe impl Send for AirResistance{}

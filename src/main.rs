@@ -34,19 +34,10 @@ use sdl2::gfx::framerate::FPSManager;
 use sdl2::rect::Rect;
 
 
-// FIXME Je te dirais de faire un SuefaceCanvas où tu peint dessus, ensuite tu transformes ton SurfaceCanvas en Surface puis en Texture que tu mets sur ton vrai Canvas
 // TODO add more flexibility (more complex gravity well, particle mass, ...)
 // TODO add collision ???
-// TODO draw some properties
-// TODO print FPS
-
-//fn draw_gravity_well(canvas: &mut Canvas<Window>, x: i16, y: i16, rad: i16) {
-fn draw_gravity_well(canvas: &mut Canvas<Surface>, x: i16, y: i16, rad: i16) {
-    canvas.filled_circle(x, y, rad*3, (0, 0, 255, 100)).unwrap();
-    canvas.filled_circle(x, y, rad*2, (0, 0, 255, 150)).unwrap();
-    canvas.filled_circle(x, y, rad, (0, 0, 255, 200)).unwrap();
-    canvas.filled_circle(x, y, 5, (0, 0, 255, 255)).unwrap();
-}
+// FIXME better drawing of physic properties
+// TODO other physic property (accelerator tube, ...)
 
 fn main() {
     let args : Vec<String> = env::args().collect();
@@ -121,7 +112,6 @@ fn main() {
                     for _ in 0..1 {
                         world.create_particle();
                     }
-                    println!("create particle !");
                 }
                 _ => {}
             }
@@ -148,9 +138,6 @@ fn main() {
                 surface_canvas.filled_circle(p.position.x as i16, p.position.y as i16, rad, red).unwrap();
             }
         }
-        println!("{} particles, {} fps",
-                 world.particles.len(),
-                 fps_counter.get_framerate());
         let surface = font.render(&fps_counter.get_framerate().to_string())
             .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
         let surface2 = font.render(&world.particles.iter().filter(|p| p.alive).count().to_string())
