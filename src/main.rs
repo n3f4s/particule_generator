@@ -39,7 +39,8 @@ use sdl2::rect::Rect;
 // TODO draw some properties
 // TODO print FPS
 
-fn draw_gravity_well(canvas: &mut Canvas<Window>, x: i16, y: i16, rad: i16) {
+//fn draw_gravity_well(canvas: &mut Canvas<Window>, x: i16, y: i16, rad: i16) {
+fn draw_gravity_well(canvas: &mut Canvas<Surface>, x: i16, y: i16, rad: i16) {
     canvas.filled_circle(x, y, rad*3, (0, 0, 255, 100)).unwrap();
     canvas.filled_circle(x, y, rad*2, (0, 0, 255, 150)).unwrap();
     canvas.filled_circle(x, y, rad, (0, 0, 255, 200)).unwrap();
@@ -97,9 +98,9 @@ fn main() {
     let texture_creator = canvas.texture_creator();
 
     'mainloop: loop {
-        // let mut surface_canvas = SurfaceCanvas::from_surface(
-        //     Surface::new(1900, 1060, PixelFormatEnum::RGBA4444).unwrap()
-        // ).unwrap();
+        let mut surface_canvas = SurfaceCanvas::from_surface(
+            Surface::new(1900, 1060, PixelFormatEnum::RGBA4444).unwrap()
+        ).unwrap();
 
         for event in sdl_context.event_pump().unwrap().poll_iter() {
             match event {
@@ -118,40 +119,41 @@ fn main() {
         world.update();
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
+        surface_canvas.set_draw_color(Color::RGB(0, 0, 0));
+        surface_canvas.clear();
         // Point where the particle are created
-        canvas.filled_circle((bound.center().x) as i16,
+        surface_canvas.filled_circle((bound.center().x) as i16,
                                      bound.center().y as i16,
                                      1,
                                      (255, 255, 255, 255)
         ).unwrap();
 
         // Gravity well 1
-        draw_gravity_well(&mut canvas,
+        draw_gravity_well(&mut surface_canvas,
                           (bound.center().x + 100.0) as i16,
                           (bound.center().y) as i16,
                           10);
 
         // Gravity well 2
-        draw_gravity_well(&mut canvas,
+        draw_gravity_well(&mut surface_canvas,
                           (bound.center().x + 130.0) as i16,
                           (bound.center().y) as i16,
                           10);
 
         // Gravity well 3
-        draw_gravity_well(&mut canvas,
+        draw_gravity_well(&mut surface_canvas,
                           (bound.center().x + 160.0) as i16,
                           (bound.center().y) as i16,
                           10);
 
         // Gravity well 4
-        draw_gravity_well(&mut canvas,
+        draw_gravity_well(&mut surface_canvas,
                           (bound.center().x - 200.0) as i16,
                           (bound.center().y - 300.0) as i16,
                           10);
         for p in &world.particles {
             if p.alive {
-                //surface_canvas.filled_circle(p.position.x as i16, p.position.y as i16, rad, red).unwrap();
-                canvas.filled_circle(p.position.x as i16, p.position.y as i16, rad, red).unwrap();
+                surface_canvas.filled_circle(p.position.x as i16, p.position.y as i16, rad, red).unwrap();
             }
         }
         println!("{} particles, {} fps",
@@ -166,12 +168,12 @@ fn main() {
         let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
         let texture2 = texture_creator.create_texture_from_surface(&surface2).unwrap();
         let texture3 = texture_creator.create_texture_from_surface(&surface3).unwrap();
-        // let texture_creator = surface_canvas.texture_creator();
-        // canvas.copy(&texture_creator.create_texture_from_surface(
-        //     surface_canvas.into_surface()
-        // ).unwrap(),
-                    // None,
-                    // None).unwrap();
+        let texture_creator = canvas.texture_creator();
+        canvas.copy(&texture_creator.create_texture_from_surface(
+            surface_canvas.into_surface()
+        ).unwrap(),
+                    None,
+                    None).unwrap();
         canvas.copy(&texture, None, Some(Rect::new(0, 0, 50, 50))).unwrap();
         canvas.copy(&texture2, None, Some(Rect::new(0, 55, 50, 50))).unwrap();
         canvas.copy(&texture3, None, Some(Rect::new(0, 110, 50, 50))).unwrap();
