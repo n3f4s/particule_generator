@@ -12,14 +12,14 @@ pub struct World {
     pub boundaries: Rectangle,
 
     particle_creation_point: Point3,
-    create_particle_fun: Box<Fn(Point3) -> Particle>,
+    create_particle_fun: Box<Fn(Point3) -> Particle + Sync + Send>,
 
     cpt: i16
 
 }
 
 impl World {
-    pub fn new(pr: Vec<Box<PhysicProperty>>, b: Rectangle, c: Point3, f: Box<Fn(Point3) -> Particle>) -> World {
+    pub fn new(pr: Vec<Box<PhysicProperty>>, b: Rectangle, c: Point3, f: Box<Fn(Point3) -> Particle + Sync + Send>) -> World {
         World {
             particles: vec![],
             properties: pr,
@@ -32,12 +32,15 @@ impl World {
     pub fn update(&mut self) {
         // let mut cpt = 0;
         // par_iter_mut
-        self.particles.par_iter_mut().for_each(|p| {
-            for prop in &self.properties {
-                p = &mut prop.update_particle(p)
+        let prop = &self.properties;
+        let bound = &self.boundaries;
+        self.particles.par_iter_mut().for_each(|p: &mut Particle| {
+            //for prop in &self.properties {
+            for prop in prop.iter() {
+                *p = prop.update_particle(p)
             }
             p.update();
-            if ! self.boundaries.is_in_bound(&p.position) {
+            if ! bound.is_in_bound(&p.position) {
                 p.alive = false
             };
         });
