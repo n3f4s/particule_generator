@@ -17,6 +17,7 @@ use rectangle::Rectangle;
 use world::World;
 
 use std::boxed::Box;
+use std::env;
 
 use rand::{thread_rng, Rng};
 use sdl2::image::{INIT_PNG, INIT_JPG};
@@ -48,7 +49,16 @@ fn draw_gravity_well(canvas: &mut Canvas<Surface>, x: i16, y: i16, rad: i16) {
 }
 
 fn main() {
-    let bound = Rectangle{up_left_corner: Point3::new(0.0,0.0,0.0), height: 1060.0, width: 1900.0, depth: 0.0};
+    let args : Vec<String> = env::args().collect();
+    let width: u32  = args[1].parse().unwrap();
+    let height: u32 = args[2].parse().unwrap();
+    let parts_by_frame: u32 = args[3].parse().unwrap();
+    let bound = Rectangle{
+        up_left_corner: Point3::new(0.0,0.0,0.0),
+        height: height as f64,
+        width: width as f64,
+        depth: 0.0
+    };
     let mut world = World::new(vec![Box::new(Gravity{}),
                                     Box::new(Wind{}),
                                     Box::new(AirResistance{}),
@@ -82,7 +92,7 @@ fn main() {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
     let _image_context = sdl2::image::init(INIT_PNG | INIT_JPG).unwrap();
-    let window = video_subsystem.window("Particle generator", 1900, 1060)
+    let window = video_subsystem.window("Particle generator", width, height)
         .position_centered()
         .build()
         .unwrap();
@@ -178,7 +188,7 @@ fn main() {
         canvas.copy(&texture2, None, Some(Rect::new(0, 55, 50, 50))).unwrap();
         canvas.copy(&texture3, None, Some(Rect::new(0, 110, 50, 50))).unwrap();
         canvas.present();
-        for _ in 0..100 {
+        for _ in 0..parts_by_frame {
             world.create_particle();
         }
     }
