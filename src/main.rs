@@ -29,7 +29,6 @@ use sdl2::render::SurfaceCanvas;
 use sdl2::surface::Surface;
 use sdl2::pixels::PixelFormatEnum;
 use sdl2::render::Canvas;
-use sdl2::video::Window;
 use sdl2::gfx::framerate::FPSManager;
 use sdl2::rect::Rect;
 
