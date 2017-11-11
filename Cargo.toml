@@ -6,7 +6,8 @@ authors = ["n3f4s <tiv.crb@gmail.com>"]
 [dependencies]
 #sdl2 = "*"
 rand = "0.3"
+rayon = "*"
 
 [dependencies.sdl2]
 git = "https://github.com/AngryLawyer/rust-sdl2"
-features = ["image", "gfx"]
+features = ["image", "gfx", "ttf"]
