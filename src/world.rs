@@ -44,21 +44,8 @@ impl World {
                 p.alive = false
             };
         });
-        // for p in self.particles.iter_mut() {
-        //     for prop in &self.properties {
-        //         prop.update_particle(p)
-        //     }
-        //     p.update();
-        //     if ! self.boundaries.is_in_bound(&p.position) {
-        //         p.alive = false
-        //     };
-            // if ! p.alive {
-            //     cpt += 1;
-            // }
-        // }
-        // if cpt >= (self.particles.len() / 2) {
         self.cpt += 1;
-        if self.cpt > 10 {
+        if self.cpt > 100 {
             self.particles.retain(|&x| x.alive);
             self.cpt = 0;
         }
