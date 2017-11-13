@@ -8,6 +8,7 @@ use sdl2::video::Window;
 use sdl2::surface::Surface;
 use sdl2::gfx::primitives::DrawRenderer;
 //use sdl2::render::RenderTarget;
+use std::f64::consts::PI;
 
 pub trait PhysicProperty : Send + Sync {
     //type DrawableEntity: Drawable;
@@ -55,7 +56,8 @@ impl PhysicProperty for AirResistance {
     fn update_particle(&self, p: &Particle) -> Particle {
         let density = 1.0; // air density
         let drag = 0.20; // drag coeficient (magic number here)
-        let area = 1.0; // area affected by the air resistance, compute using radius of sphere
+        let area = PI * (p.radius as f64);// area affected by the air resistance, compute using radius of sphere
+        //let area = 1.0;
         let mut next_point = p.clone();
         next_point.update();
         let speed = (((next_point.position.x - p.position.x) *
