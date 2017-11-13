@@ -7,15 +7,22 @@ use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::surface::Surface;
 use sdl2::gfx::primitives::DrawRenderer;
+//use sdl2::render::RenderTarget;
 
 pub trait PhysicProperty : Send + Sync {
+    //type DrawableEntity: Drawable;
     fn update_particle(&self, p: &Particle) -> Particle;
+    //fn as_drawable(&self) -> &Self::DrawableEntity;
     fn as_drawable(&self) -> Option<&Drawable>;
 }
-pub struct Gravity {
-}
+// struct Void {}
+// impl Drawable for Void {
+//     fn draw<T: RenderTarget>(&self, canvas: Canvas<T>) {}
+// }
 
+pub struct Gravity {}
 impl PhysicProperty for Gravity {
+    //type DrawableEntity = Void;
     fn update_particle(&self, p: &Particle) -> Particle {
         let mut tmp = p.clone();
         tmp.apply_force(Vec3::new(0.0, 1.0, 0.0));
@@ -25,23 +32,26 @@ impl PhysicProperty for Gravity {
         None
     }
 }
-pub struct Wind {
-}
 
+pub struct Wind {}
 impl PhysicProperty for Wind {
+    // type DrawableEntity = Void;
     fn update_particle(&self, p: &Particle) -> Particle {
         let mut tmp = p.clone();
         tmp.apply_force(Vec3::new(-0.25, 0.0, 0.0));
         tmp
     }
+    // fn as_drawable(&self) -> &Self::DrawableEntity {
+    //     Void {}
+    // }
     fn as_drawable(&self) -> Option<&Drawable> {
         None
     }
 }
-pub struct AirResistance {
-}
 
+pub struct AirResistance {}
 impl PhysicProperty for AirResistance {
+    //type DrawableEntity = Void;
     fn update_particle(&self, p: &Particle) -> Particle {
         let density = 1.0; // air density
         let drag = 0.20; // drag coeficient (magic number here)
@@ -58,10 +68,14 @@ impl PhysicProperty for AirResistance {
         tmp.apply_force(-1.0 * f * unit_v);
         tmp
     }
+    // fn as_drawable(&self) -> &Self::DrawableEntity {
+    //     Void {}
+    // }
     fn as_drawable(&self) -> Option<&Drawable> {
         None
     }
 }
+
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
 pub struct GravityWell {
     pub position: Point3,
@@ -78,7 +92,8 @@ impl GravityWell {
     }
 }
 impl Drawable for GravityWell {
-    fn draw_surface(&self, c: &mut Canvas<Surface>) {
+    //fn draw<T: RenderTarget>(&self, c: &mut Canvas<T>) {
+    fn draw_window(&self, c: &mut Canvas<Window>) {
         c.filled_circle(self.position.x as i16,
                         self.position.y as i16,
                         (self.area_of_effect * 3.0) as i16,
@@ -100,7 +115,7 @@ impl Drawable for GravityWell {
                         (0, 0, 255, 255)
         ).unwrap();
     }
-    fn draw_window(&self, c: &mut Canvas<Window>) {
+    fn draw_surface(&self, c: &mut Canvas<Surface>) {
         c.filled_circle(self.position.x as i16,
                         self.position.y as i16,
                         (self.area_of_effect * 3.0) as i16,
@@ -124,6 +139,7 @@ impl Drawable for GravityWell {
     }
 }
 impl PhysicProperty for GravityWell {
+    //type DrawableEntity = GravityWell;
     fn update_particle(&self, p: &Particle) -> Particle {
         let dist = ((self.position.x - p.position.x) *
                     (self.position.x - p.position.x)) +
@@ -147,6 +163,9 @@ impl PhysicProperty for GravityWell {
         }
         tmp
     }
+    // fn as_drawable(&self) -> &Self::DrawableEntity {
+    //     self
+    // }
     fn as_drawable(&self) -> Option<&Drawable> {
         Some(self)
     }

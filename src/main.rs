@@ -16,6 +16,7 @@ use particle::Particle;
 use physic_property::{Gravity, GravityWell, AirResistance, Wind};
 use rectangle::Rectangle;
 use world::World;
+use drawable::Drawable;
 
 use std::boxed::Box;
 use std::env;
@@ -29,7 +30,6 @@ use sdl2::pixels::Color;
 use sdl2::render::SurfaceCanvas;
 use sdl2::surface::Surface;
 use sdl2::pixels::PixelFormatEnum;
-use sdl2::render::Canvas;
 use sdl2::gfx::framerate::FPSManager;
 use sdl2::rect::Rect;
 
@@ -89,8 +89,6 @@ fn main() {
         .unwrap();
 
     let mut canvas = window.into_canvas().present_vsync().build().unwrap();
-    let red = (255, 0, 0, 255);
-    let rad = 5;
 
     let fps_counter = FPSManager::new();
     let ttf_context = sdl2::ttf::init().unwrap();
@@ -135,9 +133,10 @@ fn main() {
         }
         for p in &world.particles {
             if p.alive {
-                surface_canvas.filled_circle(p.position.x as i16, p.position.y as i16, rad, red).unwrap();
+                p.draw_surface(&mut surface_canvas);
             }
         }
+        world.boundaries.draw_surface(&mut surface_canvas);
         let surface = font.render(&fps_counter.get_framerate().to_string())
             .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
         let surface2 = font.render(&world.particles.iter().filter(|p| p.alive).count().to_string())
