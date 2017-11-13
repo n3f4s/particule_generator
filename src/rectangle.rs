@@ -1,5 +1,12 @@
 
 use point3::Point3;
+use drawable::Drawable;
+
+use sdl2::rect::Rect;
+use sdl2::render::Canvas;
+use sdl2::video::Window;
+use sdl2::surface::Surface;
+use sdl2::gfx::primitives::DrawRenderer;
 
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
 pub struct Rectangle {
@@ -25,5 +32,22 @@ impl Rectangle {
             y: self.up_left_corner.y + self.height/2.0,
             z: self.up_left_corner.z + self.depth/2.0
         }
+    }
+}
+
+impl Drawable for Rectangle {
+    fn draw_surface(&self, c: &mut Canvas<Surface>) {
+        let r = Rect::new(self.up_left_corner.x as i32,
+                          self.up_left_corner.y as i32,
+                          self.width as u32,
+                          self.height as u32);
+        c.draw_rect(r).unwrap();
+    }
+    fn draw_window(&self, c: &mut Canvas<Window>) {
+        let r = Rect::new(self.up_left_corner.x as i32,
+                          self.up_left_corner.y as i32,
+                          self.width as u32,
+                          self.height as u32);
+        c.draw_rect(r).unwrap();
     }
 }
