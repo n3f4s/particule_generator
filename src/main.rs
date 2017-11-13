@@ -12,7 +12,7 @@ mod drawable;
 
 use vec3::Vec3;
 use point3::Point3;
-use particle::Particle;
+use particle::ParticleBuilder;
 use physic_property::{Gravity, GravityWell, AirResistance, Wind};
 use rectangle::Rectangle;
 use world::World;
@@ -74,11 +74,15 @@ fn main() {
                                Box::new(move |p: Point3| {
                                    // meh
                                    let mut rng = thread_rng();
-                                   Particle::new(p, Vec3::new(rng.gen_range(-50.0, 50.0),
-                                                              rng.gen_range(-100.0, 0.0),
-                                                              0.0))
-                                   }
-                               ));
+                                   ParticleBuilder::new(p,
+                                                        Vec3::new(
+                                                            rng.gen_range(-50.0, 50.0),
+                                                            rng.gen_range(-100.0, 0.0),
+                                                            0.0))
+                                       .with_radius(rng.gen_range(1, 10))
+                                       .with_lifetime(rng.gen_range(50, 250))
+                                       .create()
+                               }));
     // SDL
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();

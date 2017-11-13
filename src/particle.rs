@@ -13,9 +13,8 @@ pub struct Particle {
     pub direction: Vec3,
     pub alive: bool,
     pub lifetime: u64, //tick
-    max_lifetime: u64 //tick
-    //TODO lifetime of the particle ?
-    //TODO raduis
+    max_lifetime: u64, //tick
+    pub radius: i16
     //TODO mass
 }
 
@@ -26,7 +25,8 @@ impl Particle {
             direction: d,
             alive: true,
             lifetime: 250,
-            max_lifetime: 250
+            max_lifetime: 250,
+            radius: 5
         }
     }
     pub fn update(&mut self) {
@@ -60,13 +60,38 @@ impl Drawable for Particle {
     fn draw_surface(&self, c: &mut Canvas<Surface>) {
         c.filled_circle(self.position.x as i16,
                         self.position.y as i16,
-                        5,
+                        self.radius,
                         (255, self.compute_green(), 0, self.compute_alpha())).unwrap();
     }
     fn draw_window(&self, c: &mut Canvas<Window>) {
         c.filled_circle(self.position.x as i16,
                         self.position.y as i16,
-                        5,
+                        self.radius,
                         (255, self.compute_green(), 0, self.compute_alpha())).unwrap();
+    }
+}
+
+pub struct ParticleBuilder {
+    template: Particle
+}
+
+impl<'a> ParticleBuilder {
+    pub fn new(start_pos: Point3, start_dir: Vec3) -> ParticleBuilder {
+        ParticleBuilder {
+            template: Particle::new(start_pos, start_dir)
+        }
+    }
+
+    pub fn with_radius(&'a mut self, radius: i16) -> &'a mut ParticleBuilder {
+        self.template.radius = radius;
+        self
+    }
+    pub fn with_lifetime(&'a mut self, lifetime: u64) -> &'a mut ParticleBuilder {
+        self.template.max_lifetime = lifetime;
+        self.template.lifetime = lifetime;
+        self
+    }
+    pub fn create(&self) -> Particle {
+        self.template.clone()
     }
 }
