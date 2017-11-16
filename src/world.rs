@@ -2,6 +2,7 @@ use particle::Particle;
 use physic_property::PhysicProperty;
 use point3::Point3;
 use rectangle::Rectangle;
+use vec3::Vec3;
 
 use rayon::prelude::*;
 use rayon::iter::IntoParallelRefMutIterator;
@@ -46,7 +47,7 @@ impl World {
         });
         self.cpt += 1;
         if self.cpt > 100 {
-            self.particles.retain(|&x| x.alive);
+            self.particles.retain(|&x| x.is_alive());
             self.cpt = 0;
         }
     }

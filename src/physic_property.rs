@@ -55,18 +55,17 @@ impl PhysicProperty for AirResistance {
     //type DrawableEntity = Void;
     fn update_particle(&self, p: &Particle) -> Particle {
         let density = 1.0; // air density
-        let drag = 0.20; // drag coeficient (magic number here)
-        let area = PI * (p.radius as f64);// area affected by the air resistance, compute using radius of sphere
-        //let area = 1.0;
-        let mut next_point = p.clone();
+        let drag = 0.020; // drag coeficient (magic number here)
+        let area = PI * (p.get_radius() as f64);// area affected by the air resistance, compute using radius of sphere
+        let mut next_point = p.copy();
         next_point.update();
-        let speed = (((next_point.position.x - p.position.x) *
-                      (next_point.position.x - p.position.x)) +
-                     ((next_point.position.y - p.position.y) *
-                      (next_point.position.y - p.position.y))).sqrt();
+        let speed = (((next_point.get_position().x - p.get_position().x) *
+                      (next_point.get_position().x - p.get_position().x)) +
+                     ((next_point.get_position().y - p.get_position().y) *
+                      (next_point.get_position().y - p.get_position().y))).sqrt();
         let f = ((density * drag * area) / 2.0) * speed;
-        let unit_v = unit_vector(p.direction);
-        let mut tmp = p.clone();
+        let unit_v = unit_vector(p.get_direction());
+        let mut tmp = p.copy(); //p.clone();
         tmp.apply_force(-1.0 * f * unit_v);
         tmp
     }
@@ -143,17 +142,17 @@ impl Drawable for GravityWell {
 impl PhysicProperty for GravityWell {
     //type DrawableEntity = GravityWell;
     fn update_particle(&self, p: &Particle) -> Particle {
-        let dist = ((self.position.x - p.position.x) *
-                    (self.position.x - p.position.x)) +
-                   ((self.position.y - p.position.y) *
-                   (self.position.y - p.position.y));
+        let dist = ((self.position.x - p.get_position().x) *
+                    (self.position.x - p.get_position().x)) +
+                   ((self.position.y - p.get_position().y) *
+                   (self.position.y - p.get_position().y));
         let aoe = self.area_of_effect;
         let aoe2 = aoe * 2.0;
         let aoe3 = aoe * 3.0;
 
-        let vec = Vec3{ x: p.position.x - self.position.x,
-                        y: p.position.y - self.position.y,
-                        z: p.position.z - self.position.z};
+        let vec = Vec3{ x: p.get_position().x - self.position.x,
+                        y: p.get_position().y - self.position.y,
+                        z: p.get_position().z - self.position.z};
 
         let mut tmp = p.clone();
         if dist < (aoe * aoe) {
