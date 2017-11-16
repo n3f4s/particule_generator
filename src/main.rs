@@ -100,6 +100,8 @@ fn main() {
     font.set_style(sdl2::ttf::STYLE_BOLD);
     let texture_creator = canvas.texture_creator();
 
+    let mut cpt = 0;
+
     'mainloop: loop {
         let mut surface_canvas = SurfaceCanvas::from_surface(
             Surface::new(1900, 1060, PixelFormatEnum::RGBA4444).unwrap()
@@ -118,50 +120,58 @@ fn main() {
                 _ => {}
             }
         }
-        world.update();
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
-        canvas.clear();
-        surface_canvas.set_draw_color(Color::RGB(0, 0, 0));
-        surface_canvas.clear();
-        // Point where the particle are created
-        surface_canvas.filled_circle((bound.center().x) as i16,
-                                     bound.center().y as i16,
-                                     1,
-                                     (255, 255, 255, 255)
-        ).unwrap();
-        for p in &world.properties {
-            match p.as_drawable() {
-                None => {},
-                Some(d) => d.draw_surface(&mut surface_canvas)
+        if cpt == 0 {
+            world.update();
+        } else {
+            canvas.set_draw_color(Color::RGB(0, 0, 0));
+            canvas.clear();
+            surface_canvas.set_draw_color(Color::RGB(0, 0, 0));
+            surface_canvas.clear();
+            // Point where the particle are created
+            surface_canvas.filled_circle((bound.center().x) as i16,
+                                         bound.center().y as i16,
+                                         1,
+                                         (255, 255, 255, 255)
+            ).unwrap();
+            for p in &world.properties {
+                match p.as_drawable() {
+                    None => {},
+                    Some(d) => d.draw_surface(&mut surface_canvas)
+                }
+            }
+            for p in &world.particles {
+                if p.is_alive() {
+                    p.draw_surface(&mut surface_canvas);
+                }
+            }
+            world.boundaries.draw_surface(&mut surface_canvas);
+            let surface = font.render(&fps_counter.get_framerate().to_string())
+                .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
+            let surface2 = font.render(&world.particles
+                                       .iter()
+                                       .filter(|p| p.is_alive())
+                                       .count()
+                                       .to_string())
+                .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
+            let surface3 = font.render(&world.particles.len().to_string())
+                .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
+            let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
+            let texture2 = texture_creator.create_texture_from_surface(&surface2).unwrap();
+            let texture3 = texture_creator.create_texture_from_surface(&surface3).unwrap();
+            let texture_creator = canvas.texture_creator();
+            canvas.copy(&texture_creator.create_texture_from_surface(
+                surface_canvas.into_surface()
+            ).unwrap(),
+                        None,
+                        None).unwrap();
+            canvas.copy(&texture, None, Some(Rect::new(0, 0, 50, 50))).unwrap();
+            canvas.copy(&texture2, None, Some(Rect::new(0, 55, 50, 50))).unwrap();
+            canvas.copy(&texture3, None, Some(Rect::new(0, 110, 50, 50))).unwrap();
+            canvas.present();
+            for _ in 0..parts_by_frame {
+                world.create_particle();
             }
         }
-        for p in &world.particles {
-            if p.alive {
-                p.draw_surface(&mut surface_canvas);
-            }
-        }
-        world.boundaries.draw_surface(&mut surface_canvas);
-        let surface = font.render(&fps_counter.get_framerate().to_string())
-            .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
-        let surface2 = font.render(&world.particles.iter().filter(|p| p.alive).count().to_string())
-            .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
-        let surface3 = font.render(&world.particles.len().to_string())
-            .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
-        let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
-        let texture2 = texture_creator.create_texture_from_surface(&surface2).unwrap();
-        let texture3 = texture_creator.create_texture_from_surface(&surface3).unwrap();
-        let texture_creator = canvas.texture_creator();
-        canvas.copy(&texture_creator.create_texture_from_surface(
-            surface_canvas.into_surface()
-        ).unwrap(),
-                    None,
-                    None).unwrap();
-        canvas.copy(&texture, None, Some(Rect::new(0, 0, 50, 50))).unwrap();
-        canvas.copy(&texture2, None, Some(Rect::new(0, 55, 50, 50))).unwrap();
-        canvas.copy(&texture3, None, Some(Rect::new(0, 110, 50, 50))).unwrap();
-        canvas.present();
-        for _ in 0..parts_by_frame {
-            world.create_particle();
-        }
+        cpt = 1 - cpt;
     }
 }
