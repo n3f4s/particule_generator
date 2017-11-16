@@ -47,9 +47,32 @@ impl World {
             //     *p = prop.update_particle(p);
             // }
             p.update();
-            if ! bound.is_in_bound(&p.position) {
-                p.alive = false
-            };
+            let pos = p.get_position();
+            let dir = p.get_direction();
+            let rad = p.get_radius() as f64;
+            // if ! bound.is_in_bound(&pos) {
+                let x = pos.x;
+                let y = pos.y;
+                let corner = bound.up_left_corner;
+                if (x - (rad/2.0)) < corner.x && (dir.x < 0.0) {
+                    p.apply_force(Vec3::new(-1.0 * dir.x * 2.0,
+                                            dir.y,
+                                            dir.z))
+                } else if (corner.x + bound.width) < (x + (rad/2.0)) && (dir.x > 0.0) {
+                    p.apply_force(Vec3::new(-1.0 * dir.x * 2.0,
+                                            dir.y,
+                                            dir.z))
+                }
+                if (y - (rad/2.0)) < corner.y && (dir.y < 0.0) {
+                    p.apply_force(Vec3::new(dir.x,
+                                            -1.0 * dir.y * 2.0,
+                                            dir.z))
+                } else if (corner.y + bound.height) < (y + (rad/2.0)) && (dir.y > 0.0) {
+                    p.apply_force(Vec3::new(dir.x,
+                                            -1.0 * dir.y * 2.0,
+                                            dir.z))
+                }
+            // };
         });
         self.cpt += 1;
         if self.cpt > 100 {
