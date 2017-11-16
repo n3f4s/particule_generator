@@ -76,11 +76,11 @@ fn main() {
                                    let mut rng = thread_rng();
                                    ParticleBuilder::new(p,
                                                         Vec3::new(
-                                                            rng.gen_range(-50.0, 50.0),
-                                                            rng.gen_range(-100.0, 0.0),
+                                                            rng.gen_range(-100.0, 100.0),
+                                                            rng.gen_range(-200.0, 0.0),
                                                             0.0))
                                        .with_radius(rng.gen_range(1, 10))
-                                       .with_lifetime(rng.gen_range(50, 250))
+                                       .with_lifetime(rng.gen_range(50, 1000))
                                        .create()
                                }));
     // SDL
