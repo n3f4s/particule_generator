@@ -26,7 +26,7 @@ impl PhysicProperty for Gravity {
     //type DrawableEntity = Void;
     fn update_particle(&self, p: &Particle) -> Particle {
         let mut tmp = p.clone();
-        tmp.apply_force(Vec3::new(0.0, 1.0, 0.0));
+        tmp.apply_force(Vec3::new(0.0, 1.0 * (p.get_mass() as f64), 0.0));
         tmp
     }
     fn as_drawable(&self) -> Option<&Drawable> {
@@ -156,7 +156,7 @@ impl PhysicProperty for GravityWell {
 
         let mut tmp = p.clone();
         if dist < (aoe * aoe) {
-            tmp.apply_force(vec * -self.strength);
+            tmp.apply_force(vec * -self.strength * p.get_mass());
         } else if dist < (aoe2 * aoe2) {
             tmp.apply_force(vec * -(self.strength/2.0));
         } else if dist < (aoe3 * aoe3) {
