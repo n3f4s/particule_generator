@@ -52,7 +52,7 @@ fn main() {
     };
     let mut world = World::new(vec![Box::new(Gravity{}),
                                     Box::new(Wind{}),
-                                    Box::new(AirResistance{}),
+                                    Box::new(AirResistance::new()),
                                     Box::new(GravityWell::new(Point3{
                                         x: bound.center().x - 200.0,
                                         y: bound.center().y - 300.0,

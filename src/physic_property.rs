@@ -9,6 +9,8 @@ use sdl2::surface::Surface;
 use sdl2::gfx::primitives::DrawRenderer;
 //use sdl2::render::RenderTarget;
 use std::f64::consts::PI;
+use std::vec::Vec;
+use std;
 
 pub trait PhysicProperty : Send + Sync {
     //type DrawableEntity: Drawable;
@@ -50,7 +52,43 @@ impl PhysicProperty for Wind {
     }
 }
 
-pub struct AirResistance {}
+struct SqrtCache {
+    cache: Vec<f64>
+}
+
+impl SqrtCache {
+    fn new(max: usize) -> SqrtCache {
+        let mut c = SqrtCache {
+            cache: Vec::<f64>::with_capacity(max)
+        };
+        for (i, v) in c.cache.iter_mut().enumerate() {
+            let j = i as f64;
+            *v = j.sqrt();
+        }
+        c
+    }
+
+    fn compute_sqrt(&self, v: f64) -> f64 {
+        if v.ceil() >= (self.cache.len() as f64) {
+            v.sqrt()
+        } else {
+            unsafe {
+                self.cache.get_unchecked(v.abs().ceil() as usize).clone()
+            }
+        }
+    }
+}
+
+pub struct AirResistance {
+    cache: SqrtCache
+}
+impl AirResistance {
+    pub fn new() -> AirResistance {
+        AirResistance {
+            cache: SqrtCache::new(100)
+        }
+    }
+}
 impl PhysicProperty for AirResistance {
     //type DrawableEntity = Void;
     fn update_particle(&self, p: &Particle) -> Particle {
@@ -59,10 +97,10 @@ impl PhysicProperty for AirResistance {
         let area = PI * (p.get_radius() as f64);// area affected by the air resistance, compute using radius of sphere
         let mut next_point = p.copy();
         next_point.update();
-        let speed = (((next_point.get_position().x - p.get_position().x) *
-                      (next_point.get_position().x - p.get_position().x)) +
-                     ((next_point.get_position().y - p.get_position().y) *
-                      (next_point.get_position().y - p.get_position().y))).sqrt();
+        let speed = self.cache.compute_sqrt(((next_point.get_position().x - p.get_position().x) *
+                                             (next_point.get_position().x - p.get_position().x)) +
+                                            ((next_point.get_position().y - p.get_position().y) *
+                                             (next_point.get_position().y - p.get_position().y)));
         let f = ((density * drag * area) / 2.0) * speed;
         let unit_v = unit_vector(p.get_direction());
         let mut tmp = p.copy(); //p.clone();
