@@ -1,5 +1,9 @@
 
 use std::ops::{Neg, AddAssign, SubAssign, MulAssign, DivAssign, Add, Sub, Mul, Div, Index};
+use std::marker::Copy;
+use std::clone::Clone;
+use std::fmt::Debug;
+use std::default::Default;
 
 use num;
 use num::Float;
@@ -13,7 +17,13 @@ trait Num : num::Num
     + Add
     + Sub
     + Mul
-    + Div {}
+    + Div
+    + Copy
+    + Clone
+    + Debug
+    + Default
+    + PartialEq
+{}
 
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
 pub struct Vec3<T: Num> {
@@ -21,6 +31,8 @@ pub struct Vec3<T: Num> {
     pub y: T,
     pub z: T
 }
+
+// impl<T: Num> Copy for Vec3<T> {}
 
 impl<T: Float> Vec3<T> {
     pub fn length(&self) -> T {
@@ -122,7 +134,8 @@ impl<T: Num> Mul for Vec3<T> {
     }
 }
 
-impl<T: Num> Mul<Vec3<T>> for T {
+struct MyType<T>(T);
+impl<T: Num> Mul<Vec3<T>> for MyType<T> {
     type Output = Vec3<T>;
     fn mul(self, rhs: Vec3<T>) -> Vec3<T> {
         Vec3::new(

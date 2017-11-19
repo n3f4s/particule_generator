@@ -1,6 +1,6 @@
 
 use vec3d;
-use vec3d::unit_vector;
+pub use vec3d::unit_vector;
 
 pub type Vec3 = vec3d::Vec3<f64>;
 

@@ -6,6 +6,7 @@ extern crate num;
 mod vec3;
 mod vec3d;
 mod point3;
+mod point3d;
 mod particle;
 mod physic_property;
 mod world;

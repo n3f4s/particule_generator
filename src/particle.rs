@@ -1,27 +1,28 @@
-use vec3::Vec3;
-use point3::Point3;
+
+use vec3d::Vec3;
+use point3d::Point3;
 use drawable::Drawable;
+
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use sdl2::surface::Surface;
 use sdl2::gfx::primitives::DrawRenderer;
-//use std::cmp::max;
 
 static PARTICLE_DENSITY : f64 = 1.0;
 
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
 pub struct Particle {
-    position: Point3,
-    direction: Vec3,
+    position: Point3<i16>,
+    direction: Vec3<i16>,
     alive: bool,
     lifetime: u64, //tick
     max_lifetime: u64, //tick
     radius: i16,
-    mass: f64 // density is 0.2
+    mass: f64
 }
 
 impl Particle {
-    pub fn new(p: Point3, d: Vec3) -> Particle {
+    pub fn new(p: Point3<i16>, d: Vec3<i16>) -> Particle {
         Particle {
             position: p,
             direction: d,
@@ -32,16 +33,16 @@ impl Particle {
             mass: 5.0 * PARTICLE_DENSITY
         }
     }
-    pub fn set_position(&mut self, pos: Point3) {
+    pub fn set_position(&mut self, pos: Point3<i16>) {
         self.position = pos;
     }
     pub fn is_alive(&self) -> bool {
         self.alive
     }
-    pub fn get_position(&self) -> Point3 {
+    pub fn get_position(&self) -> Point3<i16> {
         self.position
     }
-    pub fn get_direction(&self) -> Vec3 {
+    pub fn get_direction(&self) -> Vec3<i16> {
         self.direction
     }
     pub fn get_lifetime(&self) -> u64 {
@@ -74,7 +75,7 @@ impl Particle {
             }
         }
     }
-    pub fn apply_force(&mut self, f: Vec3) {
+    pub fn apply_force(&mut self, f: Vec3<i16>) {
         self.direction += f
     }
     pub fn kill(&mut self) {
@@ -119,7 +120,7 @@ pub struct ParticleBuilder {
 }
 
 impl<'a> ParticleBuilder {
-    pub fn new(start_pos: Point3, start_dir: Vec3) -> ParticleBuilder {
+    pub fn new(start_pos: Point3<i16>, start_dir: Vec3<i16>) -> ParticleBuilder {
         ParticleBuilder {
             template: Particle::new(start_pos, start_dir)
         }
