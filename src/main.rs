@@ -13,7 +13,7 @@ mod drawable;
 use vec3::Vec3;
 use point3::Point3;
 use particle::ParticleBuilder;
-use physic_property::{Gravity, GravityWell, AirResistance, Wind};
+use physic_property::{Gravity, GravityWell, AirResistance, Wind, BigGravityWell};
 use rectangle::Rectangle;
 use world::World;
 use drawable::Drawable;
@@ -61,10 +61,14 @@ fn main() {
                                         x: bound.center().x + 100.0,
                                         y: bound.center().y,
                                         z: bound.center().z}, 7.0, 10.0)),
-                                    Box::new(GravityWell::new(Point3{
-                                        x: bound.center().x + 130.0,
+                                    Box::new(BigGravityWell::new(Point3{
+                                        x: bound.center().x - 500.0,
                                         y: bound.center().y,
-                                        z: bound.center().z}, 7.0, 10.0)),
+                                        z: bound.center().z}, 1.0, 1.0, 13)),
+                                    // Box::new(GravityWell::new(Point3{
+                                    //     x: bound.center().x + 130.0,
+                                    //     y: bound.center().y,
+                                    //     z: bound.center().z}, 7.0, 10.0)),
                                     Box::new(GravityWell::new(Point3{
                                         x: bound.center().x + 160.0,
                                         y: bound.center().y,

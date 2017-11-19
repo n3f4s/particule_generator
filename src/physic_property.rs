@@ -171,3 +171,83 @@ impl PhysicProperty for GravityWell {
         Some(self)
     }
 }
+
+#[derive(Debug, Default, PartialEq, Copy, Clone)]
+pub struct BigGravityWell {
+    pub position: Point3,
+    pub strength: f64,
+    pub area_of_effect: f64,
+    pub layers: u64,
+}
+impl BigGravityWell {
+    pub fn new(p: Point3, s: f64, aoe: f64, l: u64) -> BigGravityWell {
+        BigGravityWell {
+            position: p,
+            strength: s,
+            area_of_effect: aoe,
+            layers: l
+        }
+    }
+}
+impl Drawable for BigGravityWell {
+    //fn draw<T: RenderTarget>(&self, c: &mut Canvas<T>) {
+    fn draw_window(&self, c: &mut Canvas<Window>) {
+        let mut alpha = 55;
+        let mut aoe = self.area_of_effect;
+        for i in 0..self.layers {
+            let green = std::cmp::min(255, i*12) as u8;
+            c.filled_circle(self.position.x as i16,
+                            self.position.y as i16,
+                            (aoe) as i16,
+                            (0, green, 255, alpha)
+            ).unwrap();
+            alpha += 20;
+            aoe = (aoe * 1.5) + self.area_of_effect;
+        }
+    }
+    fn draw_surface(&self, c: &mut Canvas<Surface>) {
+        let mut alpha = 255;
+        let mut aoe = self.area_of_effect;
+        for _ in 0..self.layers {
+            // let green = std::cmp::min(255, i*12) as u8;
+            c.filled_circle(self.position.x as i16,
+                            self.position.y as i16,
+                            (aoe) as i16,
+                            (0, 0, 255, alpha as u8)
+            ).unwrap();
+            alpha -= 255/(self.layers+1);
+            aoe = (aoe * 1.5) + self.area_of_effect;
+        }
+    }
+}
+impl PhysicProperty for BigGravityWell {
+    //type DrawableEntity = BigGravityWell;
+    fn update_particle(&self, p: &Particle) -> Particle {
+        let dist = ((self.position.x - p.get_position().x) *
+                    (self.position.x - p.get_position().x)) +
+                   ((self.position.y - p.get_position().y) *
+                   (self.position.y - p.get_position().y));
+        let mut aoe = self.area_of_effect;
+
+        let vec = Vec3{ x: p.get_position().x - self.position.x,
+                        y: p.get_position().y - self.position.y,
+                        z: p.get_position().z - self.position.z};
+
+        let mut tmp = p.clone();
+        for i in 1..(self.layers+1) {
+            let j = i as f64;
+            if dist < (aoe * aoe) {
+                tmp.apply_force(vec * (-self.strength / j) * p.get_mass());
+                break
+            }
+            aoe = (aoe * 1.5) + self.area_of_effect;
+        }
+        tmp
+    }
+    // fn as_drawable(&self) -> &Self::DrawableEntity {
+    //     self
+    // }
+    fn as_drawable(&self) -> Option<&Drawable> {
+        Some(self)
+    }
+}
