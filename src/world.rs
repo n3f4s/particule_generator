@@ -37,52 +37,64 @@ impl World {
         // par_iter_mut
         let prop = &self.properties;
         let bound = &self.boundaries;
-        let iter = self.iter;
+        // let iter = self.iter;
         // FIXME maybe useless to parallelise
         // FIXME or maybe do all physic computation (instead of just one per frame)
         self.particles.par_iter_mut().for_each(|p: &mut Particle| {
-            *p = prop[iter].update_particle(p);
-            //for prop in &self.properties {
-            // for prop in prop.iter() {
-            //     *p = prop.update_particle(p);
-            // }
+            // *p = prop[iter].update_particle(p);
+            // for prop in &self.properties {
+            for prop in prop.iter() {
+                *p = prop.update_particle(p);
+            }
             p.update();
             let pos = p.get_position();
             let dir = p.get_direction();
             let rad = p.get_radius() as f64;
-            // if ! bound.is_in_bound(&pos) {
-                let x = pos.x;
-                let y = pos.y;
-                let corner = bound.up_left_corner;
-                if (x - (rad/2.0)) < corner.x && (dir.x < 0.0) {
+
+            let x = pos.x;
+            let y = pos.y;
+            let z = pos.z;
+            let corner = bound.up_left_corner;
+            if (x - (rad)) < corner.x {
+                if dir.x <= 0.0 {
                     p.apply_force(Vec3::new(-1.0 * dir.x * 2.0,
                                             dir.y,
-                                            dir.z))
-                } else if (corner.x + bound.width) < (x + (rad/2.0)) && (dir.x > 0.0) {
+                                            dir.z));
+                }
+                p.set_position(Point3::new(corner.x + rad, y, z));
+            } else if (corner.x + bound.width) < (x + (rad)) && (dir.x > 0.0) {
+                if dir.x >= 0.0 {
                     p.apply_force(Vec3::new(-1.0 * dir.x * 2.0,
                                             dir.y,
                                             dir.z))
                 }
-                if (y - (rad/2.0)) < corner.y && (dir.y < 0.0) {
+                p.set_position(Point3::new(corner.x + bound.width - rad, y, z));
+            }
+            if (y - (rad)) < corner.y {
+                if dir.y <= 0.0 {
                     p.apply_force(Vec3::new(dir.x,
                                             -1.0 * dir.y * 2.0,
-                                            dir.z))
-                } else if (corner.y + bound.height) < (y + (rad/2.0)) && (dir.y > 0.0) {
-                    p.apply_force(Vec3::new(dir.x,
-                                            -1.0 * dir.y * 2.0,
-                                            dir.z))
+                                            dir.z));
                 }
-            // };
+                p.set_position(Point3::new(x, corner.y + rad, z));
+            } else if (corner.y + bound.height) < (y + (rad)) {
+                if dir.y >= 0.0 {
+                    p.apply_force(Vec3::new(dir.x,
+                                            -1.0 * dir.y * 2.0,
+                                            dir.z));
+                }
+                p.set_position(Point3::new(x, corner.y + bound.height - rad, z));
+            }
         });
         self.cpt += 1;
         if self.cpt > 100 {
             self.particles.retain(|&x| x.is_alive());
             self.cpt = 0;
         }
-        self.iter += 1;
-        if self.iter >= self.properties.len() {
-            self.iter = 0;
-        }
+        // self.iter += 1;
+        // if self.iter >= self.properties.len() {
+        //     self.iter = 0;
+        // }
     }
 
     pub fn create_particle(&mut self) {

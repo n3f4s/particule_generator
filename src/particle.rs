@@ -32,6 +32,9 @@ impl Particle {
             mass: 5.0 * PARTICLE_DENSITY
         }
     }
+    pub fn set_position(&mut self, pos: Point3) {
+        self.position = pos;
+    }
     pub fn is_alive(&self) -> bool {
         self.alive
     }
