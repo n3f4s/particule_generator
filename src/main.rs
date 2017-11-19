@@ -150,15 +150,15 @@ fn main() {
             }
             world.boundaries.draw_surface(&mut surface_canvas);
             let surface = font.render(&fps_counter.get_framerate().to_string())
-                .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
+                .blended(Color::RGBA(0, 0, 255, 255)).unwrap();
             let surface2 = font.render(&world.particles
                                        .iter()
                                        .filter(|p| p.is_alive())
                                        .count()
                                        .to_string())
-                .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
+                .blended(Color::RGBA(0, 0, 255, 255)).unwrap();
             let surface3 = font.render(&world.particles.len().to_string())
-                .blended(Color::RGBA(255, 0, 0, 255)).unwrap();
+                .blended(Color::RGBA(0, 0, 255, 255)).unwrap();
             let texture = texture_creator.create_texture_from_surface(&surface).unwrap();
             let texture2 = texture_creator.create_texture_from_surface(&surface2).unwrap();
             let texture3 = texture_creator.create_texture_from_surface(&surface3).unwrap();
