@@ -1,34 +1,45 @@
 
-use vec3d;
-use vec3d::unit_vector;
-
-pub type Vec3 = vec3d::Vec3<f64>;
-
-/*
 use std::ops::{Neg, AddAssign, SubAssign, MulAssign, DivAssign, Add, Sub, Mul, Div, Index};
 
+use num;
+use num::Float;
+
+trait Num : num::Num
+    + Neg
+    + AddAssign
+    + SubAssign
+    + MulAssign
+    + DivAssign
+    + Add
+    + Sub
+    + Mul
+    + Div {}
+
 #[derive(Debug, Default, PartialEq, Copy, Clone)]
-pub struct Vec3 {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64
+pub struct Vec3<T: Num> {
+    pub x: T,
+    pub y: T,
+    pub z: T
 }
 
-impl Vec3 {
-    pub fn length(&self) -> f64 {
+impl<T: Float> Vec3<T> {
+    pub fn length(&self) -> T {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
-    }
-
-    pub fn squared_length(&self) -> f64 {
-        self.x * self.x + self.y * self.y + self.z * self.z
     }
 
     pub fn make_unit(&mut self) -> Self {
         *self /= self.length();
         *self
     }
+}
 
-    pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
+impl<T: Num> Vec3<T> {
+
+    pub fn squared_length(&self) -> T {
+        self.x * self.x + self.y * self.y + self.z * self.z
+    }
+
+    pub fn new(x: T, y: T, z: T) -> Vec3<T> {
         Vec3{
             x: x,
             y: y,
@@ -37,7 +48,7 @@ impl Vec3 {
     }
 }
 
-pub fn cross(v1: &Vec3, v2: &Vec3) -> Vec3 {
+pub fn cross<T: Num>(v1: &Vec3<T>, v2: &Vec3<T>) -> Vec3<T> {
     Vec3::new(
         v1.y * v2.z - v1.z * v2.y,
         -(v1.x * v2.z - v1.z * v2.x),
@@ -45,19 +56,19 @@ pub fn cross(v1: &Vec3, v2: &Vec3) -> Vec3 {
     )
 }
 
-pub fn dot(v1: &Vec3, v2: &Vec3) -> f64 {
+pub fn dot<T: Num>(v1: &Vec3<T>, v2: &Vec3<T>) -> T {
     v1.x * v2.x + v1.y * v2.y + v1.z * v2.z
 }
 
-pub fn unit_vector(v: Vec3) -> Vec3 {
+pub fn unit_vector<T: Float>(v: Vec3<T>) -> Vec3<T> {
     let mut tmp = v;
     tmp.make_unit();
     tmp
 }
 
-impl Index<i32> for Vec3 {
-    type Output = f64;
-    fn index(&self, index: i32) -> &f64 {
+impl<T: Num> Index<i32> for Vec3<T> {
+    type Output = T;
+    fn index(&self, index: i32) -> &T {
         match index {
             0 => &self.x,
             1 => &self.y,
@@ -67,9 +78,9 @@ impl Index<i32> for Vec3 {
     }
 }
 
-impl Div for Vec3 {
-    type Output = Vec3;
-    fn div(self, rhs: Vec3) -> Vec3 {
+impl<T: Num> Div for Vec3<T> {
+    type Output = Vec3<T>;
+    fn div(self, rhs: Vec3<T>) -> Vec3<T> {
         Vec3::new(
             self.x / rhs.x,
             self.y / rhs.y,
@@ -78,9 +89,9 @@ impl Div for Vec3 {
     }
 }
 
-impl Div<f64> for Vec3 {
-    type Output = Vec3;
-    fn div(self, t: f64) -> Vec3 {
+impl<T: Num> Div<T> for Vec3<T> {
+    type Output = Vec3<T>;
+    fn div(self, t: T) -> Vec3<T> {
         Vec3::new(
             self.x / t,
             self.y / t,
@@ -89,9 +100,9 @@ impl Div<f64> for Vec3 {
     }
 }
 
-impl Mul<f64> for Vec3 {
-    type Output = Vec3;
-    fn mul(self, t: f64) -> Vec3 {
+impl<T: Num> Mul<T> for Vec3<T> {
+    type Output = Vec3<T>;
+    fn mul(self, t: T) -> Vec3<T> {
         Vec3::new(
             self.x * t,
             self.y * t,
@@ -100,9 +111,9 @@ impl Mul<f64> for Vec3 {
     }
 }
 
-impl Mul for Vec3 {
-    type Output = Vec3;
-    fn mul(self, rhs: Vec3) -> Vec3 {
+impl<T: Num> Mul for Vec3<T> {
+    type Output = Vec3<T>;
+    fn mul(self, rhs: Vec3<T>) -> Vec3<T> {
         Vec3::new(
             self.x * rhs.x,
             self.y * rhs.y,
@@ -111,9 +122,9 @@ impl Mul for Vec3 {
     }
 }
 
-impl Mul<Vec3> for f64 {
-    type Output = Vec3;
-    fn mul(self, rhs: Vec3) -> Vec3 {
+impl<T: Num> Mul<Vec3<T>> for T {
+    type Output = Vec3<T>;
+    fn mul(self, rhs: Vec3<T>) -> Vec3<T> {
         Vec3::new(
             rhs.x * self,
             rhs.y * self,
@@ -122,9 +133,9 @@ impl Mul<Vec3> for f64 {
     }
 }
 
-impl Sub for Vec3 {
-    type Output = Vec3;
-    fn sub(self, rhs: Vec3) -> Vec3 {
+impl<T: Num> Sub for Vec3<T> {
+    type Output = Vec3<T>;
+    fn sub(self, rhs: Vec3<T>) -> Vec3<T> {
         Vec3::new(
             self.x - rhs.x,
             self.y - rhs.y,
@@ -133,9 +144,9 @@ impl Sub for Vec3 {
     }
 }
 
-impl Add for Vec3 {
-    type Output = Vec3;
-    fn add(self, rhs: Vec3) -> Vec3 {
+impl<T: Num> Add for Vec3<T> {
+    type Output = Vec3<T>;
+    fn add(self, rhs: Vec3<T>) -> Vec3<T> {
         Vec3::new(
             self.x + rhs.x,
             self.y + rhs.y,
@@ -144,61 +155,61 @@ impl Add for Vec3 {
     }
 }
 
-impl DivAssign for Vec3 {
-    fn div_assign(&mut self, rhs: Vec3) {
+impl<T: Num> DivAssign for Vec3<T> {
+    fn div_assign(&mut self, rhs: Vec3<T>) {
         self.x /= rhs.x;
         self.y /= rhs.y;
         self.z /= rhs.z;
     }
 }
 
-impl DivAssign<f64> for Vec3 {
-    fn div_assign(&mut self, t: f64) {
+impl<T: Num> DivAssign<T> for Vec3<T> {
+    fn div_assign(&mut self, t: T) {
         self.x /= t;
         self.y /= t;
         self.z /= t;
     }
 }
 
-impl MulAssign for Vec3 {
-    fn mul_assign(&mut self, rhs: Vec3) {
+impl<T: Num> MulAssign for Vec3<T> {
+    fn mul_assign(&mut self, rhs: Vec3<T>) {
         self.x *= rhs.x;
         self.y *= rhs.y;
         self.z *= rhs.z;
     }
 }
 
-impl MulAssign<f64> for Vec3 {
-    fn mul_assign(&mut self, t: f64) {
+impl<T: Num> MulAssign<T> for Vec3<T> {
+    fn mul_assign(&mut self, t: T) {
         self.x *= t;
         self.y *= t;
         self.z *= t;
     }
 }
 
-impl AddAssign for Vec3 {
-    fn add_assign(&mut self, rhs: Vec3) {
+impl<T: Num> AddAssign for Vec3<T> {
+    fn add_assign(&mut self, rhs: Vec3<T>) {
         self.x += rhs.x;
         self.y += rhs.y;
         self.z += rhs.z;
     }
 }
 
-impl SubAssign for Vec3 {
-    fn sub_assign(&mut self, rhs: Vec3) {
+impl<T: Num> SubAssign for Vec3<T> {
+    fn sub_assign(&mut self, rhs: Vec3<T>) {
         self.x -= rhs.x;
         self.y -= rhs.y;
         self.z -= rhs.z;
     }
 }
 
-impl Neg for Vec3 {
-    type Output = Vec3;
-    fn neg(self) -> Vec3 {
+impl<T: Num> Neg for Vec3<T> {
+    type Output = Vec3<T>;
+    fn neg(self) -> Vec3<T> {
         Vec3::new(-self.x, -self.y, -self.z)
     }
 }
-
+/*
 #[test]
 fn vec3_neg() {
     let a = Vec3::new(1.0, 2.0, 3.0);
@@ -328,4 +339,5 @@ fn vec3_access() {
     let result = ::std::panic::catch_unwind(|| a[3]);
     assert!(result.is_err());
 }
+
 */

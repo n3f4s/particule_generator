@@ -1,8 +1,10 @@
 extern crate rand;
 extern crate sdl2;
 extern crate rayon;
+extern crate num;
 
 mod vec3;
+mod vec3d;
 mod point3;
 mod particle;
 mod physic_property;
